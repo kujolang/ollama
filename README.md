@@ -4,18 +4,29 @@ Native Ollama support for Kujo, with an optional normalized Kujo AI SDK integrat
 
 ## Install
 
-The public registry command is not yet operated for this package. From a clean project, use the immutable GitHub tag:
+An operated public package registry is not available yet, so this release is installed from its immutable GitHub tag:
 
-    kujo run /path/to/kennel/kennel.kujo --interpreter -- add github:kujolang/ollama@v0.1.5 --alias ollama
-    kujo run ../kennel/kennel.kujo --interpreter -- install
+```sh
+kujo run /path/to/kennel/kennel.kujo --interpreter -- add github:kujolang/ollama@v0.1.9 --alias ollama
+kujo run /path/to/kennel/kennel.kujo --interpreter -- install
+```
 
-The manifest is ready for public `kennel add ollama` distribution when that service is enabled. Kujo automatically discovers installed roots from the nearest `kennel.lock`; see `scripts/verify_installed_package.sh` for the clean-room proof.
+The `[registry]` URLs in `kennel.toml` are intentionally empty until a public registry service is operated. Do not use `kennel add ollama` yet. Kujo automatically discovers installed roots from the nearest `kennel.lock`; see `scripts/verify_installed_package.sh` for the clean-room installation proof.
 
 ## 30-second quick start
 
-    from ollama import chat
-    response := chat({"model": "some-installed-model", "messages": [{"role": "user", "content": "Hello!"}]})
-    print(response["data"]["message"]["content"])
+```kujo
+from ollama import chat
+
+response := chat({
+    "model": "some-installed-model",
+    "messages": [
+        {"role": "user", "content": "Hello!"}
+    ]
+})
+
+print(response["data"]["message"]["content"])
+```
 
 Use an installed model name.
 
