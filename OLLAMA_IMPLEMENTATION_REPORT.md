@@ -42,7 +42,7 @@ Implemented describe, validate, encode_chat, decode_chat, decode_error, decode_s
 
 ## Tests and live validation
 
-Deterministic suites cover configuration, local no-auth, cloud key scope, unsafe host rejection, redaction, native NDJSON, driver hooks, chat/tool/usage mapping, embeddings, and compatibility separation. Run bash scripts/release_quality_gate.sh for exact totals. Live Ollama validation skipped: environment unavailable unless explicitly configured.
+Deterministic suites cover configuration, local no-auth, cloud key scope, unsafe host rejection, redaction, native NDJSON, driver hooks, chat/tool/usage mapping, embeddings, and compatibility separation. Final totals: native client 6/6 passed; AI SDK driver 4/4 passed; aggregate 10/10 passed. Live Ollama validation skipped: environment unavailable.
 
 ## AI SDK changes
 
