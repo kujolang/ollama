@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10 - 2026-08-27
+
+- Standardize README badges and move implementation evidence into `docs/`.
+
 ## 0.1.9 - 2026-08-27
 
 - Update release metadata and the clean-room install smoke to 0.1.9.

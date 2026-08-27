@@ -1,5 +1,9 @@
 # Ollama for Kujo
 
+[![Version](https://img.shields.io/badge/version-0.1.10-black)](https://github.com/kujolang/ollama/releases/tag/v0.1.10)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+[![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
+
 Native Ollama support for Kujo, with an optional normalized Kujo AI SDK integration.
 
 ## Install
@@ -7,7 +11,7 @@ Native Ollama support for Kujo, with an optional normalized Kujo AI SDK integrat
 An operated public package registry is not available yet, so this release is installed from its immutable GitHub tag:
 
 ```sh
-kujo run /path/to/kennel/kennel.kujo --interpreter -- add github:kujolang/ollama@v0.1.9 --alias ollama
+kujo run /path/to/kennel/kennel.kujo --interpreter -- add github:kujolang/ollama@v0.1.10 --alias ollama
 kujo run /path/to/kennel/kennel.kujo --interpreter -- install
 ```
 
@@ -56,4 +60,4 @@ Local Ollama sends no Authorization header. https://ollama.com reads OLLAMA_API_
 
 The default gate is offline and uses deterministic transports/fixtures. Optional live validation is separate and does not download or delete user resources.
 
-See PROVIDER_PACKAGE_PATTERN_DRAFT.md and OLLAMA_IMPLEMENTATION_REPORT.md.
+See [the package documentation](docs/) for implementation reports and provider-package evidence.

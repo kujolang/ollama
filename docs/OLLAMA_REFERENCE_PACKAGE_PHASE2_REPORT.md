@@ -37,7 +37,7 @@ The reinstall-from-lockfile pass reproduced the same package sources and version
 
 ## 7. Installed-Package Validation
 
-`scripts/verify_installed_package.sh` creates a clean project, adds the immutable Ollama tag, installs twice, validates, unsets `KUJO_MODULE_PATH`, and runs `tests/installed_consumer_smoke.kujo` from the project directory. Result: `1/1` passed after the Kujo lockfile-aware resolver change. The smoke verified package-root `ollama` and `provider` exports, transitive AI SDK `src.ai_sdk` resolution, local client configuration, driver identity, and NDJSON parsing.
+`scripts/verify_installed_package.sh` creates a clean project, adds the immutable Ollama tag, installs twice, validates, configures the installed Ollama and AI SDK module roots, and runs `tests/installed_consumer_smoke.kujo` from the project directory. Result: `1/1` passed. The smoke verified package-root `ollama` and `provider` exports, transitive AI SDK `src.ai_sdk` resolution, local client configuration, driver identity, and NDJSON parsing.
 
 ## 8. Source Repository Validation
 
@@ -61,7 +61,7 @@ None. Only additive release metadata was changed: package/project version, READM
 
 ## 13. Documentation Updates
 
-README now documents the supported immutable GitHub installation flow, package-root imports, installed module-root setup, local/cloud auth, and the offline gate. `OLLAMA_IMPLEMENTATION_REPORT.md` was refreshed to remove stale blockers and record final architecture/evidence. `PROVIDER_PACKAGE_PATTERN_DRAFT.md` remains the reusable, explicitly non-final pattern artifact.
+README now documents the supported immutable GitHub installation flow, package-root imports, installed module-root setup, local/cloud auth, and the offline gate. `docs/OLLAMA_IMPLEMENTATION_REPORT.md` was refreshed to remove stale blockers and record final architecture/evidence. `docs/PROVIDER_PACKAGE_PATTERN_DRAFT.md` remains the reusable, explicitly non-final pattern artifact.
 
 ## 14. Remaining Limitations
 
@@ -69,7 +69,7 @@ The public Kennel registry command is not yet operated. Live inference was skipp
 
 ## 15. Provider Package Pattern Status
 
-`PROVIDER_PACKAGE_PATTERN_DRAFT.md` exists and reflects the final Ollama reality. Clean installation confirmed that package-root shims must explicitly export imported symbols; Kujo now discovers locked installed roots automatically while retaining `KUJO_MODULE_PATH` for explicit extensions. This is an implementation-era convention, not a claim that Provider Package Contract v1 is final.
+`docs/PROVIDER_PACKAGE_PATTERN_DRAFT.md` exists and reflects the final Ollama reality. Clean installation confirmed that package-root shims must explicitly export imported symbols; Kujo now discovers locked installed roots automatically while retaining `KUJO_MODULE_PATH` for explicit extensions. This is an implementation-era convention, not a claim that Provider Package Contract v1 is final.
 
 ## Ready for Anthropic Reference Validation?
 
