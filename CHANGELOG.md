@@ -15,7 +15,9 @@
 ## 0.1.0
 
 - Initial native Ollama client and Kujo AI SDK provider-driver package.
-## 0.1.7 - 2026-08-26
+## 0.1.8 - 2026-08-26
+
+- Publish final implementation and phase-2 release evidence.
 
 - Export the native and provider APIs from the package-root compatibility shims.
 

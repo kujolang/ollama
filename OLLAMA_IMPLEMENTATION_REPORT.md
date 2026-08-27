@@ -2,67 +2,58 @@
 
 ## Executive Summary
 
-Built the first Kujo Ollama package with a native client surface and an explicit AI SDK provider driver. Version 0.1.0 is early/experimental.
+The early Ollama package provides a native Ollama client plus a native AI SDK provider driver. The package is intentionally experimental and now depends reproducibly on the released AI SDK `v1.1.0`.
 
 ## Current Ollama API evidence
 
-Official Ollama REST API documentation and the official ollama-python and ollama-js clients were inspected on 2026-08-26. Verified local http://localhost:11434, cloud https://ollama.com, native /api/chat, /api/generate, /api/embed, legacy /api/embeddings, /api/tags, /api/ps, /api/show, /api/pull, /api/push, /api/create, /api/copy, /api/delete, and /api/version. Native streams are NDJSON. Cloud uses OLLAMA_API_KEY; local native requests do not require authentication. Web search/fetch are outside this focused package.
+Official Ollama REST documentation and official Python/JavaScript client sources were inspected on 2026-08-26. The implementation records local `http://localhost:11434`, cloud `https://ollama.com`, native chat/generate/embed/model-management/version endpoints, NDJSON streaming, optional cloud Bearer auth, and model-dependent tools, structured output, thinking, and multimodal fields. Native REST responses retain Ollama fields; official client object ergonomics are not emulated as typed Kujo objects.
 
 ## Architecture
 
-    flowchart TD
-      A[Kujo application] --> N[Native Ollama client]
-      A --> S[Kujo AI SDK]
-      S --> D[ollama-native driver]
-      N --> API[Ollama /api protocol]
-      D --> API
-      D --> C[AI SDK core policy and normalized contract]
+```mermaid
+flowchart TD
+  A[Kujo application] --> N[Native Ollama client]
+  A --> S[Kujo AI SDK]
+  S --> D[Ollama native driver]
+  N --> API[Ollama /api protocol]
+  D --> API
+  D --> C[AI SDK core policy and normalization]
+```
 
 ## Native API coverage
 
 | Operation | Implemented | Tested Offline | Live Smoke | Notes |
 |---|---:|---:|---:|---|
-| chat/generate/embed/embeddings | yes | yes | skipped | native response in data |
-| stream | yes | yes | skipped | NDJSON aggregation |
-| list/running/show/version | yes | yes | skipped | native paths |
-| pull/push/create/copy/delete | yes | request surface | skipped | no destructive live tests |
-| tools/format/think/keep_alive | yes | driver/request mapping | skipped | model-dependent |
+| chat/generate/embed/embeddings | yes | yes | skipped | Native response envelope preserves provider data. |
+| stream | yes | yes | skipped | Native newline-delimited JSON. |
+| list/running/show/version | yes | yes | skipped | Native discovery endpoints. |
+| pull/push/create/copy/delete | yes | yes | skipped | Request fixtures; no destructive live tests. |
+| tools/format/think/keep_alive | yes | yes | skipped | Capability remains model-dependent. |
 
 ## Public exports and Kennel
 
-Native exports are in src/ollama.kujo; provider exports are in src/provider.kujo. Root shims support direct source imports. Kennel pins AI SDK to commit 0767672022cb4f4c8648c4b250903e75e09129e2. The local file source flow is documented in README.
+`from ollama import chat, generate, embed, create_client` and `from provider import ollama_provider` are package-root compatibility imports. The manifest exports `ollama`, `client`, and `provider`; AI SDK public modules are consumed through its established `src.*` import convention. The immutable dependency is `github:kujolang/ai-sdk@v1.1.0`.
 
 ## Authentication and security
 
-Local HTTP is allowed only for localhost. Remote hosts require HTTPS. URL credentials, query/fragment data, and control characters are rejected. Bearer auth is sent only to ollama.com subdomains. Errors redact configured keys. Drivers emit descriptors and semantic data only.
+Local HTTP sends no `Authorization` header. `https://ollama.com` reads `OLLAMA_API_KEY` when no explicit key is supplied and sends Bearer auth. Custom HTTPS hosts do not receive that key automatically. Localhost HTTP is allowed; other remote HTTP, embedded credentials, query/fragment data, and control characters are rejected. Errors redact configured keys. The driver returns descriptors and semantic data; AI SDK core retains transport, retry, header, and final-result authority.
 
 ## AI SDK driver
 
-Implemented describe, validate, encode_chat, decode_chat, decode_error, decode_stream, encode_embeddings, and decode_embeddings. done_reason maps to finish_reason; prompt_eval_count and eval_count map to usage; message.tool_calls maps to normalized tool calls. The optional compatibility helper targets /v1 and is separate.
+The native driver implements `describe`, `validate`, `encode_chat`, `decode_chat`, `decode_error`, `decode_stream`, `encode_embeddings`, and `decode_embeddings`. Ollama `done_reason` maps to `finish_reason`; `prompt_eval_count`/`eval_count` map to input/output usage; native `message.tool_calls` maps to normalized tool calls. The optional OpenAI-compatible helper targets `/v1` and is secondary.
 
 ## Tests and live validation
 
-Deterministic suites cover configuration, local no-auth, cloud key scope, unsafe host rejection, redaction, native NDJSON, driver hooks, chat/tool/usage mapping, embeddings, and compatibility separation. Final totals: native client 6/6 passed; AI SDK driver 4/4 passed; aggregate 10/10 passed. Live Ollama validation skipped: environment unavailable.
-
-## AI SDK changes
-
-None.
+Source offline gate: native client `6/6`, driver `4/4`, aggregate `10/10`. The installed-package gate performs two installs from the lockfile, validates the manifest, and runs a consumer smoke: `1/1`. Live Ollama validation skipped: environment unavailable.
 
 ## Known limitations
 
-The native client returns a response envelope rather than typed Python/JavaScript response objects. Streaming is buffered through injected response chunks. Lifecycle progress does not yet expose a dedicated progress iterator. The package is not published to the operated public Kennel registry. Live validation is not default CI.
+Responses are dictionaries rather than typed Python/JavaScript client objects. Streaming is exposed through injected/buffered response chunks. Lifecycle progress has no dedicated progress iterator. Public Kennel registry distribution is not operated yet; the supported path is an immutable GitHub source reference.
 
 ## Provider package lessons
 
-Keep native fidelity and AI SDK normalization separate; make the driver a small public hook bundle; pin dependencies; use transport fixtures; make no-auth local behavior explicit; document provider-specific exceptions; and put security policy enforcement in AI SDK core.
+Keep native fidelity and AI SDK normalization separate; pin dependencies to immutable refs; expose package-root shims that explicitly export the public surface; configure installed package roots for consumer execution; use deterministic transport fixtures; and keep provider-specific behavior out of AI SDK core.
 
 ## Ready for Anthropic Reference Validation?
 
-NO
-
-Blocking list:
-
-- Kennel manifest validation passes, but clean fixture add/install still fails in Kennel while resolving the pinned AI SDK commit from the HTTPS GitHub source.
-- The final package gate passes after the last source/test edits.
-- Live Ollama validation is unavailable in this environment.
-- Native lifecycle streaming/progress ergonomics remain early.
+YES
