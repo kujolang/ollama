@@ -1,6 +1,6 @@
 [package]
 name = "ollama"
-version = "0.1.1"
+version = "0.1.2"
 description = "Native Ollama API client for Kujo with an AI SDK provider driver."
 license = "MIT"
 authors = ["Kujolang <contact@kujolang.ai>"]

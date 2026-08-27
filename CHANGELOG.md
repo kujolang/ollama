@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Add a reproducible clean-room Kennel installation and installed-consumer smoke gate.
+
 ## 0.1.1
 
 - Pin the AI SDK dependency to the immutable v1.1.0 release.

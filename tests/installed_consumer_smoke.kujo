@@ -1,0 +1,9 @@
+test_setup { from src.ollama import create_client, parse_stream; from src.provider import ollama_provider; from ai_sdk import create_client as sdk_create_client }
+test "installed public exports and transitive AI SDK resolve" {
+	client := create_client({"host": "http://localhost:11434"})
+	assert_equal(client["host"], "http://localhost:11434")
+	assert_equal(ollama_provider({"model": "fixture"})["driver"]["id"], "ollama-native")
+	assert_equal(type(sdk_create_client), "function")
+	parsed := parse_stream(["{\"message\":{\"content\":\"installed\"},\"done\":true}\n"], "")
+	assert_true(parsed["ok"]); assert_equal(parsed["events"][0]["message"]["content"], "installed")
+}
