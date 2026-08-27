@@ -1,6 +1,6 @@
 # Ollama for Kujo
 
-[![Version](https://img.shields.io/badge/version-0.1.10-black)](https://github.com/kujolang/ollama/releases/tag/v0.1.10)
+[![Version](https://img.shields.io/badge/version-0.1.11-black)](https://github.com/kujolang/ollama/releases/tag/v0.1.11)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 
@@ -50,11 +50,11 @@ Use ollama_provider for normalized workflows. Use the native API for model lifec
 
 Native chat streaming is newline-delimited JSON, not OpenAI SSE. client_chat_stream exposes events, output_text, and final. Tool schemas go in tools; JSON or JSON Schema goes in format; reasoning controls go in think; batch embeddings use input arrays.
 
-## Local and cloud authentication
+## Authentication and security
 
 Local Ollama sends no Authorization header. https://ollama.com reads OLLAMA_API_KEY when no explicit key is supplied and sends Bearer authentication. Keys are not included in examples or returned error bodies. Custom HTTPS hosts do not receive the key automatically.
 
-## Testing
+## Testing and documentation
 
     bash scripts/release_quality_gate.sh
 

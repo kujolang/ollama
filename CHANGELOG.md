@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.11
+
+- Standardized README headings with the native provider inventory.
+
 ## 0.1.10 - 2026-08-27
 
 - Standardize README badges and move implementation evidence into `docs/`.
