@@ -18,7 +18,7 @@ The previous declaration pinned AI SDK commit `0767672022cb4f4c8648c4b250903e75e
 
 Repository: `https://github.com/kujolang/ollama`.
 
-Default branch: `main`. Final pushed release tag `v0.1.8` resolves to the final documentation/release commit (verified after push). Working tree is clean and tracks `origin/main`.
+Default branch: `main`. Final pushed release tag `v0.1.8` resolves to commit `6ba6019aaa6eec78c8e9ced6b938f70e92ae8687` (Kennel records annotated tag object `3511319fddbfaef1b12c93bda596d27d715518d0`). Working tree is clean and tracks `origin/main`.
 
 ## 5. Clean-Room Kennel Test
 
@@ -31,7 +31,7 @@ The final lockfile recorded:
 | Package | Requested | Resolved ref | Resolved commit |
 |---|---|---|---|
 | ai-sdk | v1.1.0 | v1.1.0 | afc49df688ac73ccfe5ab570eae74df4391aa3c0 |
-| ollama | v0.1.8 | v0.1.8 | recorded by the final clean-room run below |
+| ollama | v0.1.8 | v0.1.8 | 3511319fddbfaef1b12c93bda596d27d715518d0 |
 
 The reinstall-from-lockfile pass reproduced the same package sources and versions.
 
