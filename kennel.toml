@@ -1,6 +1,6 @@
 [package]
 name = "ollama"
-version = "0.1.0"
+version = "0.1.1"
 description = "Native Ollama API client for Kujo with an AI SDK provider driver."
 license = "MIT"
 authors = ["Kujolang <contact@kujolang.ai>"]
@@ -28,7 +28,7 @@ output = "dist"
 artifacts = []
 
 [dependencies]
-ai-sdk = { source = "github:kujolang/ai-sdk", ref = "0767672022cb4f4c8648c4b250903e75e09129e2" }
+ai-sdk = { source = "github:kujolang/ai-sdk", ref = "v1.1.0" }
 
 [dev-dependencies]
 
