@@ -11,7 +11,10 @@ Native Ollama support for Kujo, with an optional normalized Kujo AI SDK integrat
 An operated public package registry is not available yet, so this release is installed from its immutable GitHub tag:
 
 ```sh
-kujo run /path/to/kennel/kennel.kujo --interpreter -- add github:kujolang/ollama@v0.1.11 --alias ollama
+kujo run /path/to/kennel/kennel.kujo \
+  --interpreter \
+  -- add github:kujolang/ollama@v0.1.11 \
+  --alias ollama
 kujo run /path/to/kennel/kennel.kujo --interpreter -- install
 ```
 
