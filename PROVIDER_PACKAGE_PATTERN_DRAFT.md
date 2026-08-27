@@ -1,6 +1,6 @@
 # Provider Package Pattern Draft
 
-This is evidence from Ollama, not Provider Package Contract v1. Anthropic must validate it.
+This is historical evidence from Ollama, not the canonical standard. The canonical [Kujo Provider Package Contract v1](https://github.com/kujolang/ai-sdk/blob/main/docs/KUJO_PROVIDER_PACKAGE_CONTRACT_V1.md) now supersedes this draft for future packages. Keep this file as implementation evidence; Anthropic's comparison remains in `ANTHROPIC_PROVIDER_PATTERN_VALIDATION.md`.
 
 ## Repository structure
 
