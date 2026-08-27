@@ -9,7 +9,7 @@ The public registry command is not yet operated for this package. From a clean p
     kujo run /path/to/kennel/kennel.kujo --interpreter -- add github:kujolang/ollama@v0.1.5 --alias ollama
     kujo run ../kennel/kennel.kujo --interpreter -- install
 
-The manifest is ready for public `kennel add ollama` distribution when that service is enabled. Run installed consumers with the installed package roots in `KUJO_MODULE_PATH`; see `scripts/verify_installed_package.sh`.
+The manifest is ready for public `kennel add ollama` distribution when that service is enabled. Kujo automatically discovers installed roots from the nearest `kennel.lock`; see `scripts/verify_installed_package.sh` for the clean-room proof.
 
 ## 30-second quick start
 
