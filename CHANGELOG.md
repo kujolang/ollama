@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Make the installed-package smoke ref configurable while defaulting to this release.
+
 ## 0.1.2
 
 - Add a reproducible clean-room Kennel installation and installed-consumer smoke gate.
