@@ -1,0 +1,6 @@
+from src.provider import ollama_provider
+from ai_sdk import create_client, create_message, chat_completion
+provider := ollama_provider({"model": "some-installed-model"})
+client := create_client(provider, "")
+result := chat_completion(client, [create_message("user", "Hello!")], {"model": "some-installed-model"})
+print(result["output_text"])

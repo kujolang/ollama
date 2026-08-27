@@ -1,0 +1,4 @@
+from src.ollama import create_client, client_chat_stream
+client := create_client({})
+result := client_chat_stream(client, {"model": "some-installed-model", "messages": [{"role": "user", "content": "Stream hello."}], "stream": true})
+print(result["output_text"])

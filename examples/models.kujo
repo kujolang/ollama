@@ -1,0 +1,4 @@
+from src.ollama import list_models, running_models, show_model
+print(list_models())
+print(running_models())
+print(show_model("some-installed-model"))

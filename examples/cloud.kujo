@@ -1,0 +1,4 @@
+from src.ollama import create_client, client_chat
+client := create_client({"host": "https://ollama.com"})
+result := client_chat(client, {"model": "some-cloud-model", "messages": [{"role": "user", "content": "Hello from Ollama Cloud."}]})
+print(result["data"]["message"]["content"])

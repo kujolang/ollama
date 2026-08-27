@@ -1,0 +1,3 @@
+from src.ollama import chat
+response := chat({"model": "some-installed-model", "messages": [{"role": "user", "content": "Hello!"}]})
+print(response["data"]["message"]["content"])

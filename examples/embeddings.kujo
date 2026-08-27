@@ -1,0 +1,3 @@
+from src.ollama import embed
+result := embed({"model": "some-embedding-model", "input": ["first document", "second document"]})
+print(result["data"]["embeddings"])

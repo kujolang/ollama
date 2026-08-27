@@ -1,0 +1,21 @@
+test_setup { from src.provider import ollama_provider, ollama_driver, ollama_openai_compatible_provider }
+test "native driver satisfies AI SDK 1.0.0 hooks" {
+	d := ollama_driver(); assert_equal(d["contract"], "ai-sdk-provider-driver"); assert_equal(d["version"], "1.0.0")
+	for hook in ["describe", "validate", "encode_chat", "decode_chat", "decode_error", "decode_stream", "encode_embeddings", "decode_embeddings"] { assert_equal(type(d[hook]), "function") }
+}
+test "native chat mapping preserves Ollama fields" {
+	p := ollama_provider({"model": "fixture"}); d := p["driver"]
+	encoded := d["encode_chat"]({"provider": p, "messages": [{"role": "user", "content": "hi"}], "resolved_options": {"model": "fixture", "stream": false, "think": true}})
+	assert_equal(encoded["url"], "http://localhost:11434/api/chat"); body := parse_json(encoded["body"]); assert_equal(body["messages"][0]["content"], "hi"); assert_equal(body["think"], true)
+	decoded := d["decode_chat"]({"data": {"model": "fixture", "message": {"role": "assistant", "content": "ok", "tool_calls": [{"function": {"name": "f"}}]}, "done": true, "done_reason": "stop", "prompt_eval_count": 4, "eval_count": 2}, "fallback_model": "fixture"})
+	assert_true(decoded["ok"]); assert_equal(decoded["output_text"], "ok"); assert_equal(len(decoded["tool_calls"]), 1); assert_equal(decoded["usage"]["total_tokens"], 6)
+}
+test "native stream and embeddings decode" {
+	d := ollama_driver(); stream := d["decode_stream"]({"chunks": ["{\"model\":\"m\",\"message\":{\"content\":\"x\"}}\n", "{\"model\":\"m\",\"message\":{\"content\":\"y\"},\"done\":true,\"eval_count\":2}\n"], "fallback_model": "m"})
+	assert_true(stream["ok"]); assert_equal(stream["output_text"], "xy")
+	emb := d["decode_embeddings"]({"data": {"model": "m", "embeddings": [[0.1, 0.2], [0.3, 0.4]]}, "fallback_model": "m"})
+	assert_true(emb["ok"]); assert_equal(emb["embeddings"][1]["vector"], [0.3, 0.4])
+}
+test "optional compatibility provider remains explicitly separate" {
+	p := ollama_openai_compatible_provider({"model": "m"}); assert_equal(p["base_url"], "http://localhost:11434/v1"); assert_equal(has_key(p, "driver"), 0)
+}

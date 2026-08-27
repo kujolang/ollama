@@ -1,0 +1,37 @@
+test_setup { from src.ollama import create_client, client_chat, client_generate, client_embed, client_chat_stream, client_list_models, client_show_model, client_copy_model, client_delete_model, parse_stream }
+test "local client defaults and sends no auth" {
+	client := create_client({"transport": func(url, options) { assert_equal(url, "http://localhost:11434/api/chat"); assert_equal(has_key(options["_headers"], "Authorization"), 0); return Ok({"_status": 200, "_body": to_json({"message": {"role": "assistant", "content": "hi"}, "done": true})}) }})
+	result := client_chat(client, {"model": "fixture", "messages": [{"role": "user", "content": "hello"}], "stream": false})
+	assert_true(result["ok"])
+}
+test "native endpoints preserve request shapes" {
+	client := create_client({"host": "https://ollama.example", "transport": func(url, options) { assert_equal(contains(url, "https://ollama.example"), 1); return Ok({"_status": 200, "_body": to_json({"ok": true})}) }})
+	assert_true(client_generate(client, {"model": "m", "prompt": "p", "think": true})["ok"])
+	assert_true(client_embed(client, {"model": "m", "input": ["a", "b"]})["ok"])
+	assert_true(client_list_models(client)["ok"]); assert_true(client_show_model(client, "m")["ok"])
+	assert_true(client_copy_model(client, "a", "b")["ok"]); assert_true(client_delete_model(client, "m")["ok"])
+}
+test "cloud bearer is limited to official cloud host" {
+	cloud := create_client({"host": "https://ollama.com", "api_key": "secret", "transport": func(url, options) { assert_equal(options["_headers"]["Authorization"], "Bearer secret"); return Ok({"_status": 200, "_body": to_json({"version": "x"})}) }})
+	assert_true(client_generate(cloud, {"model": "m", "prompt": "p"})["ok"])
+	remote := create_client({"host": "https://remote.example", "api_key": "secret", "transport": func(url, options) { assert_equal(has_key(options["_headers"], "Authorization"), 0); return Ok({"_status": 200, "_body": to_json({"version": "x"})}) }})
+	assert_true(client_generate(remote, {"model": "m", "prompt": "p"})["ok"])
+}
+test "unsafe hosts are rejected before transport" {
+	for host in ["http://remote.example", "https://user:pass@remote.example", "https://remote.example/?x=1"] {
+		client := create_client({"host": host, "transport": func(url, options) { return Err("must not run") }})
+		assert_true(client["validation_error"] != "")
+	}
+}
+test "native NDJSON stream aggregates complete and partial frames" {
+	parsed := parse_stream(["{\"model\":\"m\",\"message\":{\"content\":\"Hel\"}}\n{\"model\":\"m\",\"message\":{\"content\":\"lo\"},", "\"done\":true,\"done_reason\":\"stop\",\"prompt_eval_count\":2,\"eval_count\":3}\n"], "")
+	assert_true(parsed["ok"]); assert_equal(len(parsed["events"]), 2)
+	client := create_client({"transport": func(url, options) { return Ok({"_status": 200, "_stream_chunks": ["{\"message\":{\"content\":\"A\"}}\n", "{\"message\":{\"content\":\"B\"},\"done\":true}\n"]}) }})
+	result := client_chat_stream(client, {"model": "m", "messages": [], "stream": true})
+	assert_true(result["ok"]); assert_equal(result["output_text"], "AB")
+}
+test "native errors redact credentials" {
+	client := create_client({"host": "https://ollama.com", "api_key": "top-secret", "transport": func(url, options) { return Ok({"_status": 401, "_body": "{\"error\":\"top-secret denied\"}"}) }})
+	result := client_chat(client, {"model": "m", "messages": []})
+	assert_false(result["ok"]); assert_equal(contains(result["message"], "top-secret"), 0); assert_equal(contains(result["error_body"], "top-secret"), 0)
+}

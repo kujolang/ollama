@@ -1,0 +1,100 @@
+# Native Ollama client. The default transport is the Kujo http_request builtin.
+
+func get(obj, key, fallback) { if type(obj) == "dict" && has_key(obj, key) { return obj[key] }; return fallback }
+func trim_slash(value) { result := trim(value); if ends_with(result, "/") { return substring(result, 0, len(result) - 1) }; return result }
+func host_of(url) { parts := split(url, "/"); if len(parts) >= 3 { return lower(parts[2]) }; return "" }
+func is_cloud_host(host) { return host == "ollama.com" || ends_with(host, ".ollama.com") }
+func validate_host(url, allow_insecure_localhost) {
+	if type(url) != "string" || trim(url) == "" { return {"ok": false, "error": "Ollama host must be a non-empty URL."} }
+	value := trim_slash(url); low := lower(value)
+	if contains(value, "@") || contains(value, "?") || contains(value, "#") || contains(value, "\r") || contains(value, "\n") { return {"ok": false, "error": "Ollama host must not contain credentials, query, fragment, or control characters."} }
+	parts := split(value, "/"); if len(parts) < 3 || trim(parts[2]) == "" { return {"ok": false, "error": "Ollama host must include a hostname."} }
+	authority_host := host_of(value); localhost := authority_host == "localhost" || starts_with(authority_host, "localhost:") || authority_host == "127.0.0.1" || starts_with(authority_host, "127.0.0.1:")
+	if starts_with(low, "https://") { return {"ok": true, "host": value} }
+	if starts_with(low, "http://") && localhost && allow_insecure_localhost { return {"ok": true, "host": value} }
+	return {"ok": false, "error": "Remote Ollama hosts must use HTTPS; localhost HTTP requires allow_insecure_localhost=true."}
+}
+func create_client_impl(config) {
+	if type(config) != "dict" { config := {} }
+	host := trim_slash(get(config, "host", "http://localhost:11434")); allow_local := get(config, "allow_insecure_localhost", true)
+	check := validate_host(host, allow_local); api_key := get(config, "api_key", null)
+	if type(api_key) == "null" && is_cloud_host(host_of(host)) { api_key := env("OLLAMA_API_KEY") }
+	if type(api_key) != "string" { api_key := "" }
+	return {"host": host, "api_key": api_key, "timeout": get(config, "timeout", 60.0), "transport": get(config, "transport", null), "allow_insecure_localhost": allow_local, "validation_error": get(check, "error", ""), "cloud": is_cloud_host(host_of(host))}
+}
+func default_client() { return create_client_impl({}) }
+func redact(value, secret) { if type(value) == "string" && type(secret) == "string" && secret != "" { return replace(value, secret, "[REDACTED]") }; return value }
+func native_headers(client) { headers := {"Content-Type": "application/json"}; if get(client, "cloud", false) && get(client, "api_key", "") != "" { headers["Authorization"] := "Bearer " + client["api_key"] }; return headers }
+func transport_for(client) { if type(get(client, "transport", null)) == "function" { return client["transport"] }; return http_request }
+func request(client, method, path, payload, stream) {
+	if get(client, "validation_error", "") != "" { return Err(client["validation_error"]) }
+	body := ""; if type(payload) == "dict" { body := to_json(payload) }
+	options := {"method": method, "timeout": get(client, "timeout", 60.0), "_headers": native_headers(client)}
+	if body != "" { options["_body"] := body }; if stream { options["stream"] := true }
+	transport := transport_for(client)
+	return transport(client["host"] + path, options)
+}
+func response_error(operation, response, client) {
+	status := get(response, "_status", get(response, "status", 0)); body := get(response, "_body", get(response, "body", ""))
+	parsed := null; try { parsed = parse_json(body) } except err { parsed = {"error": body} }
+	message := get(parsed, "error", "Ollama request failed"); if type(message) == "dict" { message := get(message, "message", get(message, "error", "Ollama request failed")) }
+	return {"ok": false, "operation": operation, "status_code": status, "message": redact(to_string(message), get(client, "api_key", "")), "error_body": redact(body, get(client, "api_key", "")), "endpoint": client["host"]}
+}
+func finish_response(operation, response, client) {
+	status := get(response, "_status", get(response, "status", 0)); body := get(response, "_body", get(response, "body", ""))
+	if status < 200 || status > 299 { return response_error(operation, response, client) }
+	parsed := null; try { parsed = parse_json(body) } except err { return {"ok": false, "operation": operation, "status_code": status, "message": "Malformed Ollama JSON response.", "error_body": "", "endpoint": client["host"]} }
+	return {"ok": true, "operation": operation, "status_code": status, "data": parsed}
+}
+func call(client, operation, method, path, payload) {
+	result := request(client, method, path, payload, false)
+	match result {
+		case Ok(response): { return finish_response(operation, response, client) }
+		case Err(error): { return {"ok": false, "operation": operation, "status_code": 0, "message": redact(to_string(error), get(client, "api_key", "")), "error_body": "", "endpoint": client["host"]} }
+	}
+}
+func with_default(value, operation, method, path) { return call(default_client(), operation, method, path, value) }
+
+export create_client := create_client_impl
+export request_native := request
+export call_native := call
+export stream_events_native := stream_events
+export chat := func(options) { return with_default(options, "chat", "POST", "/api/chat") }
+export generate := func(options) { return with_default(options, "generate", "POST", "/api/generate") }
+export embed := func(options) { return with_default(options, "embed", "POST", "/api/embed") }
+export embeddings := func(options) { return with_default(options, "embeddings", "POST", "/api/embeddings") }
+export list_models := func() { return with_default({}, "list", "GET", "/api/tags") }
+export running_models := func() { return with_default({}, "running", "GET", "/api/ps") }
+export show_model := func(model) { return with_default({"model": model}, "show", "POST", "/api/show") }
+export version := func() { return with_default({}, "version", "GET", "/api/version") }
+export pull := func(options) { return with_default(options, "pull", "POST", "/api/pull") }
+export push := func(options) { return with_default(options, "push", "POST", "/api/push") }
+export create_model := func(options) { return with_default(options, "create", "POST", "/api/create") }
+export copy_model := func(source, destination) { return with_default({"source": source, "destination": destination}, "copy", "POST", "/api/copy") }
+export delete_model := func(model) { return call(default_client(), "delete", "DELETE", "/api/delete", {"model": model}) }
+export client_chat := func(client, options) { return call(client, "chat", "POST", "/api/chat", options) }
+export client_generate := func(client, options) { return call(client, "generate", "POST", "/api/generate", options) }
+export client_embed := func(client, options) { return call(client, "embed", "POST", "/api/embed", options) }
+export client_embeddings := func(client, options) { return call(client, "embeddings", "POST", "/api/embeddings", options) }
+export client_list_models := func(client) { return call(client, "list", "GET", "/api/tags", {}) }
+export client_running_models := func(client) { return call(client, "running", "GET", "/api/ps", {}) }
+export client_show_model := func(client, model) { return call(client, "show", "POST", "/api/show", {"model": model}) }
+export client_version := func(client) { return call(client, "version", "GET", "/api/version", {}) }
+export client_pull := func(client, options) { return call(client, "pull", "POST", "/api/pull", options) }
+export client_push := func(client, options) { return call(client, "push", "POST", "/api/push", options) }
+export client_create_model := func(client, options) { return call(client, "create", "POST", "/api/create", options) }
+export client_copy_model := func(client, source, destination) { return call(client, "copy", "POST", "/api/copy", {"source": source, "destination": destination}) }
+export client_delete_model := func(client, model) { return call(client, "delete", "DELETE", "/api/delete", {"model": model}) }
+func stream_events(chunks, body) {
+	combined := ""; if type(chunks) == "array" { for chunk in chunks { if type(chunk) == "string" { combined = combined + chunk } } } else { combined = body }
+	events := []; for line in split(combined, "\n") { if trim(line) == "" { continue }; frame := null; try { frame = parse_json(trim(line)) } except err { return {"ok": false, "error": "Malformed Ollama NDJSON frame."} }; events = concat(events, [frame]) }
+	return {"ok": true, "events": events}
+}
+export parse_stream := stream_events
+export client_chat_stream := func(client, options) {
+	request_result := request(client, "POST", "/api/chat", options, true)
+	match request_result {
+		case Err(error): { return {"ok": false, "message": redact(to_string(error), get(client, "api_key", ""))} }
+		case Ok(response): { status := get(response, "_status", 0); if status < 200 || status > 299 { return response_error("chat_stream", response, client) }; parsed := stream_events(get(response, "_stream_chunks", null), get(response, "_body", "")); if !parsed["ok"] { return parsed }; text := ""; last := {}; for event in parsed["events"] { last = event; message := get(event, "message", {}); content := get(message, "content", ""); if type(content) == "string" { text = text + content } }; return {"ok": true, "events": parsed["events"], "output_text": text, "final": last} }
+	}
+}
