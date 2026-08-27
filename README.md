@@ -4,12 +4,12 @@ Native Ollama support for Kujo, with an optional normalized Kujo AI SDK integrat
 
 ## Install
 
-The public registry command is not yet operated for this package. From a clean project:
+The public registry command is not yet operated for this package. From a clean project, use the immutable GitHub tag:
 
-    kujo run ../kennel/kennel.kujo --interpreter -- add file:../ollama --alias ollama
+    kujo run /path/to/kennel/kennel.kujo --interpreter -- add github:kujolang/ollama@v0.1.5 --alias ollama
     kujo run ../kennel/kennel.kujo --interpreter -- install
 
-The manifest is ready for public kennel add ollama distribution when that service is enabled.
+The manifest is ready for public `kennel add ollama` distribution when that service is enabled. Run installed consumers with the installed package roots in `KUJO_MODULE_PATH`; see `scripts/verify_installed_package.sh`.
 
 ## 30-second quick start
 
