@@ -1,4 +1,4 @@
-test_setup { from src.ollama import create_client, parse_stream; from src.provider import ollama_provider; from ai_sdk import create_client as sdk_create_client }
+test_setup { from src.ollama import create_client, parse_stream; from src.provider import ollama_provider; from src.ai_sdk import create_client as sdk_create_client }
 test "installed public exports and transitive AI SDK resolve" {
 	client := create_client({"host": "http://localhost:11434"})
 	assert_equal(client["host"], "http://localhost:11434")
