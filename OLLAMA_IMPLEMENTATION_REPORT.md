@@ -62,7 +62,7 @@ NO
 
 Blocking list:
 
-- Kennel manifest validation and a clean fixture add/install were attempted; remote dependency resolution was blocked until the AI SDK commit pin was corrected.
+- Kennel manifest validation passes, but clean fixture add/install still fails in Kennel while resolving the pinned AI SDK commit from the HTTPS GitHub source.
 - The final package gate passes after the last source/test edits.
 - Live Ollama validation is unavailable in this environment.
 - Native lifecycle streaming/progress ergonomics remain early.
