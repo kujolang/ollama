@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.9 - 2026-08-27
+
+- Update release metadata and the clean-room install smoke to 0.1.9.
+- Keep the installed-consumer smoke explicit about the installed package module roots.
+- Clarify that the operated public registry is not available yet and document the immutable GitHub-tag install path.
+- Improve the 30-second quick-start example formatting.
+
 ## 0.1.3
 
 - Make the installed-package smoke ref configurable while defaulting to this release.

@@ -1,0 +1,6 @@
+.DS_Store
+build/
+dist/
+kennel.lock
+kennel_packages/
+*.log
