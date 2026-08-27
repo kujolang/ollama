@@ -1,1 +1,4 @@
 from src.provider import ollama_provider, ollama_driver, ollama_openai_compatible_provider
+export ollama_provider := ollama_provider
+export ollama_driver := ollama_driver
+export ollama_openai_compatible_provider := ollama_openai_compatible_provider

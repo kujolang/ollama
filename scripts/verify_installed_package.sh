@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 KUJO_BIN="${KUJO_BIN:-$(command -v kujo)}"
 KENNEL_SCRIPT="${KENNEL_SCRIPT:-$ROOT/../kennel/kennel.kujo}"
-OLLAMA_REF="${OLLAMA_REF:-v0.1.6}"
+OLLAMA_REF="${OLLAMA_REF:-v0.1.7}"
 CLEAN="$(mktemp -d "${TMPDIR:-/tmp}/kujo-ollama-installed.XXXXXX")"
 trap 'rm -rf "$CLEAN"' EXIT
 cd "$CLEAN"

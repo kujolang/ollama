@@ -15,7 +15,9 @@
 ## 0.1.0
 
 - Initial native Ollama client and Kujo AI SDK provider-driver package.
-## 0.1.6 - 2026-08-26
+## 0.1.7 - 2026-08-26
+
+- Export the native and provider APIs from the package-root compatibility shims.
 
 - Fix the installed consumer smoke to use the AI SDK's canonical `src.ai_sdk` public module path.
 - Keep the reusable Kennel install gate pinned to this immutable package release.
