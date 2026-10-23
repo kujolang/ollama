@@ -12,10 +12,9 @@ An operated public package registry is not available yet, so this release is ins
 
 ```sh
 kujo run /path/to/kennel/kennel.kujo \
-  --interpreter \
   -- add github:kujolang/ollama@v0.1.11 \
   --alias ollama
-kujo run /path/to/kennel/kennel.kujo --interpreter -- install
+kujo run /path/to/kennel/kennel.kujo -- install
 ```
 
 The `[registry]` URLs in `kennel.toml` are intentionally empty until a public registry service is operated. Do not use `kennel add ollama` yet. Kujo automatically discovers installed roots from the nearest `kennel.lock`; see `scripts/verify_installed_package.sh` for the clean-room installation proof.
